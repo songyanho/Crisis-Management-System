@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database name="cms" defaultIdMethod="native" defaultPhpNamingMethod="underscore">
+    <behavior name="timestampable" />
+    <table name="user" phpName="User">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="username" type="varchar" size="255" required="true" />
+        <column name="password" type="varchar" size="255" required="true" />
+        <column name="email" type="varchar" size="255" required="true" />
+        <column name="tel" type="varchar" size="255" required="true" />
+    </table>
+    <table name="call_operator" phpName="CallOperator">
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="user" />
+        </behavior>
+    </table>
+    <table name="minister" phpName="Minister">
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="user" />
+        </behavior>
+    </table>
+    <table name="key_decision_maker" phpName="KeyDecisionMaker">
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="user" />
+        </behavior>
+    </table>
+    <table name="agency" phpName="Agency">
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="user" />
+        </behavior>
+    </table>
+    <table name="admin" phpName="Admin">
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="user" />
+        </behavior>
+    </table>
+    
+    <table name="login_session" idMethod="native" phpName="LoginSession">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="user_type" phpName="UserType" type="VARCHAR" size="255" required="true" />
+        <column name="user_id" phpName="UserId" type="INTEGER" required="true" />
+        <column name="session_id" phpName="SessionId" type="VARCHAR" size="255" required="true" />
+        <column name="session_key" phpName="SessionKey" type="VARCHAR" size="255" required="true" />
+        <column name="disabled" type="BOOLEAN" required="true" phpType="boolean" />
+    </table>
+    <table name="incident" phpName="Incident">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="title" phpName="Title" type="VARCHAR" size="255" required="true" />
+        <column name="location" phpName="Location" type="VARCHAR" size="255" />
+        <column name="latitude" phpName="Latitude" type="DOUBLE" />
+        <column name="longitude" phpName="Longitude" type="DOUBLE" />
+        <column name="active" phpName="Active" type="BOOLEAN" />
+        <column name="severity" phpName="Severity" type="INTEGER" default="1" />
+        <behavior name="versionable" />
+    </table>
+    <table name="category" phpName="Category">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="name" phpName="Name" type="VARCHAR" required="true" />
+    </table>
+    <table name="reporter" phpName="Reporter">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="name" phpName="Name" type="VARCHAR" size="255" required="true" />
+        <column name="tel" phpName="Tel" type="VARCHAR" size="255" required="true" />
+    </table>
+    <table name="incident_category" isCrossRef="true">
+        <column name="incident_id" type="integer" primaryKey="true" />
+        <column name="category_id" type="integer" primaryKey="true" />
+        <foreign-key foreignTable="incident" onDelete="cascade" onUpdate="cascade">
+            <reference local="incident_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="category" onDelete="cascade" onUpdate="cascade">
+            <reference local="category_id" foreign="id" />
+        </foreign-key>
+    </table>
+    <table name="incident_reporter" isCrossRef="true">
+        <column name="incident_id" type="integer" primaryKey="true" />
+        <column name="reporter_id" type="integer" primaryKey="true" />
+        <column name="description" phpName="Description" type="VARCHAR" size="1000" />
+        <foreign-key foreignTable="incident" onDelete="cascade" onUpdate="cascade">
+            <reference local="incident_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="reporter" onDelete="cascade" onUpdate="cascade">
+            <reference local="reporter_id" foreign="id" />
+        </foreign-key>
+    </table>
+    
+    <table name="resource" phpName="Resource">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="name" phpName="Name" type="VARCHAR" size="255" required="true" />
+        <column name="image" phpName="Image" type="VARCHAR" size="255" required="true" />
+        <column name="tel" phpName="Tel" type="VARCHAR" size="255" />
+        <column name="Sms" phpName="Sms" type="BOOLEAN" required="true" />
+    </table>
+    <table name="incident_resource" isCrossRef="true">
+        <column name="incident_id" type="integer" primaryKey="true" />
+        <column name="resource_id" type="integer" primaryKey="true" />
+        <foreign-key foreignTable="incident" onDelete="cascade" onUpdate="cascade">
+            <reference local="incident_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="resource" onDelete="cascade" onUpdate="cascade">
+            <reference local="resource_id" foreign="id" />
+        </foreign-key>
+    </table>
+    <table name="incident_resource_record" phpName="IncidentResourceRecord">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="incident_id" type="integer" />
+        <column name="resource_id" type="integer" />
+        <column name="reporter_id" type="integer" />
+        <foreign-key foreignTable="incident" onDelete="cascade" onUpdate="cascade">
+            <reference local="incident_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="resource" onDelete="cascade" onUpdate="cascade">
+            <reference local="resource_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="reporter" onDelete="cascade" onUpdate="cascade">
+            <reference local="reporter_id" foreign="id" />
+        </foreign-key>
+    </table>
+    
+    <table name="information" phpName="Information">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="content" phpName="Content" type="varchar" size="1000" required="true" />
+    </table>
+    
+    <table name="crisis" phpName="Crisis">
+        <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true" />
+        <column name="active" phpName="Active" type="BOOLEAN" default="true" required="true"/>
+        <column name="type" type="VARCHAR" size="10" required="true" />
+        <column name="type_id" type="INTEGER" />
+    </table>
+</database>

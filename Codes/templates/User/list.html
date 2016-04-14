@@ -1,0 +1,27 @@
+{% include 'Common/header.html' %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if users|length < 1 %}
+        <tr>
+            <td colspan="4">No records</td>
+        </tr>
+        {% endif %}
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.descendantClass }}</td>
+            <td>{% if user.id != loggedUser.id %}<a href="{{ path_for(constant('CMS::ROLE_ADMIN') ~ '#user@delete', {'id': user.id}) }}"><i class="fa fa-times"></i></a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include 'common/footer.html' %}

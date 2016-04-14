@@ -1,0 +1,787 @@
+{% include 'Common/header.html' %}
+<style>
+    h3{
+        margin-bottom: 40px;
+    }
+    #SidebarHeading {
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    sub { 
+    text-align: right;
+        float: right;
+    }
+
+    .container {
+        width: auto;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .clock {
+        width: auto;
+        margin: auto;
+/*        padding: 15px;*/
+/*        border: 1px solid #333;*/
+        color: #fff;
+    }
+
+    #Date {
+        font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
+        font-size: 24px;
+        text-align: center;
+        text-shadow: 0 0 5px #00c6ff;
+    }
+
+    .clock>ul {
+        width: 300px;
+        margin: 0 auto;
+        padding: 0px;
+        list-style: none;
+        text-align: center;
+    }
+
+    .clock>ul li {
+        display: inline;
+        font-size: 4em;/*10em;*/
+        text-align: center;
+        font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
+        text-shadow: 0 0 5px #00c6ff;
+    }
+
+    #point {
+        position: relative;
+        -moz-animation: mymove 1s ease infinite;
+        -webkit-animation: mymove 1s ease infinite;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Simple Animation */
+    @-webkit-keyframes mymove {
+        0% {opacity: 1.0;
+        text-shadow: 0 0 20px #00c6ff;
+    }
+
+    50% {
+        opacity: 0;
+        text-shadow: none;
+    }
+
+    100% {
+        opacity: 1.0;
+        text-shadow: 0 0 20px #00c6ff;
+    }	
+    }
+
+    @-moz-keyframes mymove {
+        0% {
+            opacity: 1.0;
+            text-shadow: 0 0 20px #00c6ff;
+        }
+
+        50% {
+            opacity: 0;
+            text-shadow: none;
+        }
+
+        100% {
+            opacity: 1.0;
+            text-shadow: 0 0 20px #00c6ff;
+        };
+    }
+</style>
+
+<div class="row" ng-controller="MapViewController as mvCtrl">
+    <div id="map" class="col-xs-6 col-md-8"></div>
+    <div id="sidebar" class="col-xs-6 col-md-4" style="padding:0;float: right;padding-bottom: 40px;">
+        <div class="panel panel-primary">
+            <div id="SidebarHeading" class="panel-heading">
+                <div class="clock">
+                    <h3>Singapore Today</h3>
+                    <div id="Date"></div>
+                      <ul class="test">
+                          <li class="test" id="hours"></li>
+                          <li class="test" id="point">:</li>
+                          <li class="test" id="min"></li>
+                          <li class="test" id="point">:</li>
+                          <li class="test" id="sec"></li>
+                      </ul>
+                </div>
+            </div>
+
+            <div class="panel-body" style="padding:0;">
+                <div class="panel panel-info" style="margin-bottom:0;">
+                    <div class="panel-heading">
+                        <a href="#" data-toggle="popover" title="Haze Testing" data-content="It works! :D"><h4 align="center">Haze</h4></a>
+                    </div>
+                    <div class="panel-body">PSI: 
+                        {{ '{{ mvCtrl.haze.item.region[1].record.reading._value }}' }}<br>
+                        <sub>
+                            Last Updated: <span am-time-ago="mvCtrl.haze.item.region[1].record._timestamp | amParse:'YYYYMMDDHHmmss'"></span>
+                        </sub>
+                    </div>
+                    <div class="panel-heading"><h4 align="center">Weather</h4></div>
+                    <div class="panel-body">
+                        Weather: High {{ '{{ mvCtrl.weather.temperature._high }}' }}, Low {{ '{{ mvCtrl.weather.temperature._low }}' }}<br>
+                        <sub>Last Updated: <span am-time-ago="(mvCtrl.weather.forecastValidityFrom ? mvCtrl.weather.forecastValidityFrom._date+' '+mvCtrl.weather.forecastValidityFrom._time.slice(0, -2)+':00:00' : '') | amParse:'DD-MM-YYYY H:mm:ss'"></span></sub>
+                    </div>
+                    <div class="panel-heading">
+                        <h4 align="center">Dengue</h4>
+                    </div>
+                    <div class="panel-body">
+                        Number of Cases this Week: {{ '{{ mvCtrl.denguevalue }}' }}
+                        <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-id-switch-state bootstrap-switch-animate bootstrap-switch-on" style="width: 104px;">
+                            <div class="bootstrap-switch-container" style="width: 153px; margin-left: 0px;">   
+                                <input class="toggleInput" id="switch-state" type="checkbox" unchecked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <!-- Start of ng-repeat for the catagories -->
+                <div class="panel panel-info" style="margin-bottom:0;" ng-repeat="jObject in mvCtrl.activeCatagories">
+                        
+                    <div class="panel-heading"><h4 align="center">{{' {{jObject.name}} '}}</h4></div>
+                    <div class="panel-body">
+                        Number of Active Incidents: {{ '{{ jObject.value }}' }}
+                        <input type="checkbox" ng-model="jObject.crisis" ng-change="mvCtrl.declareCatagoryCrisis(jObject.name, jObject.crisis)" bootstrap-switch />
+                    </div>                              
+                </div>
+                    
+            </div><!--panel-body-content-->
+        </div><!--panel-body-->
+    </div><!--panel-heading>-->
+</div>
+    <a id="crisisButton" ng-click="hCtrl.stateCrisis()" class="btn btn-danger btn-block" ng-class="{'btn-danger': !hCtrl.wholecrisis, 'btn-success': hCtrl.wholecrisis}" style="position: fixed; bottom: 0; right: 0; z-index: 99; width: 30%; padding: 20px;"><i class="fa fa-exclamation-triangle"></i><span ng-bind="hCtrl.wholecrisis ? 'Crisis Solve' : 'Declare CRISIS'"></span></a>
+    <!--sidebar-->
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="js/xml2json.min.js" type="text/javascript" language="javascript"></script>
+
+<script>
+    window.map = null;
+    window.ctaLayer = null;
+    window.style_light = [
+    {
+        "featureType": "administrative",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#6195a0"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.province",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "lightness": "0"
+            },
+            {
+                "saturation": "0"
+            },
+            {
+                "color": "#f5f5f2"
+            },
+            {
+                "gamma": "1"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape.man_made",
+        "elementType": "all",
+        "stylers": [
+            {
+                "lightness": "-3"
+            },
+            {
+                "gamma": "1.00"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape.natural.terrain",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#bae5ce"
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "all",
+        "stylers": [
+            {
+                "saturation": -100
+            },
+            {
+                "lightness": 45
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#fac9a9"
+            },
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "color": "#4e4e4e"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#787878"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station.airport",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "hue": "#0a00ff"
+            },
+            {
+                "saturation": "-77"
+            },
+            {
+                "gamma": "0.57"
+            },
+            {
+                "lightness": "0"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station.rail",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#43321e"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station.rail",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "hue": "#ff6c00"
+            },
+            {
+                "lightness": "4"
+            },
+            {
+                "gamma": "0.75"
+            },
+            {
+                "saturation": "-68"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#eaf6f8"
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#c7eced"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "lightness": "-49"
+            },
+            {
+                "saturation": "-53"
+            },
+            {
+                "gamma": "0.79"
+            }
+        ]
+    }
+];
+    window.style_dark = [
+    {
+        "featureType": "all",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "saturation": "35"
+            },
+            {
+                "color": "#545554"
+            }
+        ]
+    },
+    {
+        "featureType": "all",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "color": "#545554"
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "all",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.country",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.country",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.province",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            },
+            {
+                "saturation": "-100"
+            },
+            {
+                "lightness": "30"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "color": "#ffffff"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.neighborhood",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            },
+            {
+                "gamma": "0.00"
+            },
+            {
+                "lightness": "74"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#ffffff"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            },
+            {
+                "color": "#e21737"
+            },
+            {
+                "saturation": "-5"
+            },
+            {
+                "lightness": "40"
+            },
+            {
+                "gamma": "1.25"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "color": "#545554"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "weight": "0.66"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.line",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#ff0000"
+            },
+            {
+                "lightness": "80"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#e5e5e5"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#c1c1c1"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    }
+];
+    function initMap() {
+        window.map = new google.maps.Map(document.getElementById('map'), {
+            center: {
+                lat: 1.352083,
+                lng: 103.819836
+            },
+            zoom: 11,
+            // mapTypeId: google.maps.MapTypeId.TERRAIN
+            mapTypeControl: false,
+            styles: window.style_light
+        });
+        
+        window.ctaLayer = new google.maps.KmlLayer({
+            url: 'https://data.gov.sg/dataset/e7536645-6126-4358-b959-a02b22c6c473/resource/c1d04c0e-3926-40bc-8e97-2dfbb1c51c3a/download/denguecluster.kml',
+            map: null
+        });
+        var pinColor1 = "ffffff";
+        var pinColor2 = "039E3F";
+        var pinColor3 = "337ab7";
+        var pinColor4 = "FFD900";
+        var pinColor5 = "FF0000";
+        window.pinImage = [
+//            'http://maps.google.com/mapfiles/ms/icons/white.png',
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor1,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34)),
+            'http://172.21.148.164/img/marker/map-violet.png',
+            'http://172.21.148.164/img/marker/map-green.png',
+            'http://172.21.148.164/img/marker/map-blue.png',
+            'http://172.21.148.164/img/marker/map-yellow.png',
+            'http://172.21.148.164/img/marker/map-red.png',
+//            'http://www.clker.com/cliparts/A/H/x/p/g/B/google-map-white-marker-2-th.png',
+//            'http://maps.google.com/mapfiles/ms/icons/green.png',
+//            'http://maps.google.com/mapfiles/ms/icons/blue.png',
+//            'http://maps.google.com/mapfiles/ms/icons/yellow.png',
+//            'http://maps.google.com/mapfiles/ms/icons/red.png'
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor1,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34)),
+//
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor2,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34)),
+//
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor3,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34)),
+//
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor4,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34)),
+//
+//            new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor5,
+//            new google.maps.Size(21, 34),
+//            new google.maps.Point(0,0),
+//            new google.maps.Point(10, 34))
+        ];
+        window.pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+            new google.maps.Size(40, 37),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(12, 35));
+    }
+    
+    $(document).ready(function () {
+        $("[id='switch-state']").bootstrapSwitch(); //initialize bootstrap switch toggle
+        $("[id='switch-state']").on('switchChange.bootstrapSwitch', function(event, state) {
+//            console.log(window.ctaLayer);
+            if(state){
+                window.ctaLayer.setMap(window.map);
+            }else{
+                window.ctaLayer.setMap(null);
+            }
+        });
+                   
+        // Create two variable with the names of the months and days in an array
+        var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]; 
+        var dayNames= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+        // Create a newDate() object
+        var newDate = new Date();
+        // Extract the current date from Date object
+        newDate.setDate(newDate.getDate());
+        // Output the day, date, month and year   
+        $('#Date').html(dayNames[newDate.getDay()] + " " + newDate.getDate() + ' ' + monthNames[newDate.getMonth()] + ' ' + newDate.getFullYear());
+
+        setInterval( function() {
+            // Create a newDate() object and extract the seconds of the current time on the visitor's
+            var seconds = new Date().getSeconds();
+            // Add a leading zero to seconds value
+            $("#sec").html(( seconds < 10 ? "0" : "" ) + seconds);
+            },1000);
+
+        setInterval( function() {
+            // Create a newDate() object and extract the minutes of the current time on the visitor's
+            var minutes = new Date().getMinutes();
+            // Add a leading zero to the minutes value
+            $("#min").html(( minutes < 10 ? "0" : "" ) + minutes);
+            },1000);
+
+        setInterval( function() {
+            // Create a newDate() object and extract the hours of the current time on the visitor's
+            var hours = new Date().getHours();
+            // Add a leading zero to the hours value
+            $("#hours").html(( hours < 10 ? "0" : "" ) + hours);
+            }, 1000);	
+    
+        $(window).resize(function () {
+            var hh = $(window).height() - 60 > $('#sidebar').height() ? $(window).height() - 60 : $('#sidebar').height();
+            $('#map').css('height', hh + 'px');
+            $('#crisisButton').css('width', $('#sidebar').width());
+            $('.clock').css('width', $('#SidebarHeader').width());
+        });
+        
+        $(window).resize();
+        $('[data-toggle="popover"]').click(function (e) {
+            e.preventDefault();
+        }).popover();
+    });
+</script>
+{% include 'common/footer.html' %}

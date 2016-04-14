@@ -1,0 +1,17 @@
+{% include 'Common/header.html' %}
+<div class="row">
+    <form class="col-xs-4 col-xs-offset-4" method="post" action="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@search') }}" style="text-align: center;">
+        <h3>Search Incident by ID</h3>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Incident ID</label><br />
+            <input type="text" name="id" placeholder="Incident Id#" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<script>
+$(document).ready(function(){
+    $('input').focus();
+});
+</script>
+{% include 'common/footer.html' %}

@@ -1,0 +1,74 @@
+{% include 'Common/header.html' %}
+<div class="row" style="text-align: right;">
+    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@' ~ group) }}" class="btn btn-primary">Group By Category</a>
+    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat-active') }}" class="btn {% if route.routeName == (constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat-active') %}btn-primary{% else %}btn-default{% endif %}">Active incidents</a>
+    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat-inactive') }}" class="btn {% if route.routeName == (constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat-inactive') %}btn-primary{% else %}btn-default{% endif %}">Inactive incidents</a>
+    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat') }}" class="btn {% if route.routeName == (constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-cat') %}btn-primary{% else %}btn-default{% endif %}">All incidents</a>
+</div>
+<div>
+    {% for category in categories|keys if category != 'Uncategorized Incidents' %}
+    <h3>{{ category }}</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Case #</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Time</th>
+                <th>Numbers</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if categories[category]|length < 1 %}
+            <tr>
+                <td colspan="5">No records</td>
+            </tr>
+            {% endif %}
+            {% for incident in categories[category] %}
+            <tr>
+                <td>{{ incident.id }}</td>
+                <td>{{ incident.title }}</td>
+                <td class="{% if incident.severity == 1 %}success{% elseif incident.severity == 2 %}active{% elseif incident.severity == 3 %}info{% elseif incident.severity == 4 %}warning{% else %}danger{% endif %}">{{ incident.severity }}</td>
+                <td><time am-time-ago="'{{ incident.createdAt.format('Y-m-d H:i:s') }}'"></time></td>
+                <td>{{ incident.id|numberOfReporter }}</td>
+                <td><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@view', {'id': incident.id}) }}"><i class="fa fa-eye"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+    {% if 'Uncategorized Incidents' in categories|keys %}
+    <h3>Uncategorized Incidents</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Case #</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Time</th>
+                <th>Numbers</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if categories['Uncategorized Incidents']|length < 1 %}
+            <tr>
+                <td colspan="5">No records</td>
+            </tr>
+            {% endif %}
+            {% for incident in categories['Uncategorized Incidents'] %}
+            <tr>
+                <td>{{ incident.id }}</td>
+                <td>{{ incident.title }}</td>
+                <td class="{% if incident.severity == 1 %}success{% elseif incident.severity == 2 %}active{% elseif incident.severity == 3 %}info{% elseif incident.severity == 4 %}warning{% else %}danger{% endif %}">{{ incident.severity }}</td>
+                <td><time am-time-ago="'{{ incident.createdAt.format('Y-m-d H:i:s') }}'"></time></td>
+                <td>{{ incident.id|numberOfReporter }}</td>
+                <td><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@view', {'id': incident.id}) }}"><i class="fa fa-eye"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif%}
+</div>
+{% include 'common/footer.html' %}
