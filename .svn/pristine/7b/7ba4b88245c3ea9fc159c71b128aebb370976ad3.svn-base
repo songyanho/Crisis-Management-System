@@ -1,0 +1,12 @@
+{% include 'Common/header.html' %}
+<div class="row">
+    <form class="col-xs-11" method="post" action="{{ path_for(constant('CMS::ROLE_AGENCY') ~ '#information@create') }}">
+        <h3>Create new information</h3>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Information</label>
+            <textarea class="form-control" name="information" rows="10" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% include 'common/footer.html' %}

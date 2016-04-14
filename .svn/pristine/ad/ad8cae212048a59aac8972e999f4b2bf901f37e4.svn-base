@@ -1,0 +1,74 @@
+{% include 'Common/header.html' %}
+<div style="padding: 30px;">
+    <h3>General Crisis</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if wcrisis|length < 1 %}
+            <tr>
+                <td colspan="2">No crisis</td>
+            </tr>
+            {% endif %}
+            {% for crisis in wcrisis %}
+            <tr>
+                <td><time am-time-ago="'{{ crisis.createdAt.format('Y-m-d H:i:s') }}'"></time></td>
+                <td><a href="/crisis/deactivate/whole"><i class="fa fa-times"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Crisis by Categories</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if ccrisis|length < 1 %}
+            <tr>
+                <td colspan="3">No crisis</td>
+            </tr>
+            {% endif %}
+            {% for crisis in ccrisis %}
+            <tr>
+                <td>{{crisis.typeId|getCategory}}</td>
+                <td><time am-time-ago="'{{ crisis.createdAt.format('Y-m-d H:i:s') }}'"></time></td>
+                <td><a href="/crisis/deactivate/notwhole/{{ crisis.id }}"><i class="fa fa-times"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Crisis by Incidents</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if icrisis|length < 1 %}
+            <tr>
+                <td colspan="3">No crisis</td>
+            </tr>
+            {% endif %}
+            {% for crisis in icrisis %}
+            <tr>
+                <td>{{crisis.typeId|getIncident}}</td>
+                <td><time am-time-ago="'{{ crisis.createdAt.format('Y-m-d H:i:s') }}'"></time></td>
+                <td><a href="/incident/view/{{ crisis.typeId }}"><i class="fa fa-eye"></i></a><a href="/crisis/deactivate/notwhole/{{ crisis.id }}"><i class="fa fa-times"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'common/footer.html' %}

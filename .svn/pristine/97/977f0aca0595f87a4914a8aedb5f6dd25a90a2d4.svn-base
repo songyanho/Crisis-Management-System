@@ -1,0 +1,23 @@
+propel:
+    database:
+        connections:
+            cms:
+                adapter: mysql
+                classname: Propel\Runtime\Connection\ConnectionWrapper
+#                dsn: "mysql:host=172.21.148.164:3306;dbname=cms"
+                dsn: "mysql:host=localhost:8889;dbname=cms"
+                user: root
+                password: root
+                attributes:
+                settings:
+                    charset: utf8
+                    queries:
+                        utf8: "SET NAMES utf8 COLLATE utf8_unicode_ci, COLLATION_CONNECTION = utf8_unicode_ci, COLLATION_DATABASE = utf8_unicode_ci, COLLATION_SERVER = utf8_unicode_ci"
+    runtime:
+        defaultConnection: cms
+        connections:
+            - cms
+    generator:
+        defaultConnection: cms
+        connections:
+            - cms

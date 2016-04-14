@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>{% if title|length > 0 %}{{ title ~ ' | ' }}{% endif %}{{ maintitle }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+    <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+</head>
+
+<body class="index">
+    <div id="page-wrapper">
+        <header id="header" class="alt">
+            <h1 id="logo"><a href="index.html">Crisis Management System <br /><span>Team Xtreme</span></a></h1>
+            <nav id="nav">
+                <ul>
+                    <li class="current"><a href="{{ path_for(constant('CMS::ROLE_GUEST') ~ '#public@landingPage') }}">Welcome, {{ loggedUser.username }}</a></li>
+                    <li><a href="{{ path_for(constant('CMS::ROLE_GUEST') ~ '#guest@login.login') }}" class="button special">{% if userStatus == 0 %}Login{% else %}Go to Dashboard{% endif %}</a></li>
+                </ul>
+            </nav>
+        </header>
+        <section id="banner">
+            <div class="inner">
+                <header>
+                    <h2>C M S</h2>
+                </header>
+                <p>Welcome to
+                    <br /><strong>Crisis Management System</strong>
+                    <br />by <a href="#">Team Xtreme</a>.</p>
+                <footer>
+                    <ul class="buttons vertical">
+                        <li><a href="{{ path_for(constant('CMS::ROLE_GUEST') ~ '#guest@login.login') }}" class="button fit scrolly">Login now</a></li>
+                    </ul>
+                </footer>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="copyright">
+                <li>&copy; Team Xtreme</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </footer>
+    </div>
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/jquery.scrollgress.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

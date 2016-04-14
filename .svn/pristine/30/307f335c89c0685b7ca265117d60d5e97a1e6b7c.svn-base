@@ -1,0 +1,32 @@
+{% include 'Common/header.html' %}
+<div class="row">
+    <form class="col-xs-11" method="post" action="{{ path_for(constant('CMS::ROLE_ADMIN') ~ '#user@create') }}">
+        <h3>Create new user</h3>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Username</label>
+            {% if username %}<div class="alert alert-danger" role="alert">Username <strong>{{username}}</strong> has been taken.</div>{% endif %}
+            <input type="text" class="form-control" name="username" placeholder="Username" required/>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Password" required/>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Email" required/>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Contact Number</label>
+            <input type="tel" class="form-control" name="contact-number" placeholder="Contact Number" required/>
+        </div>
+        <select class="form-control" name="role">
+          <option value="CallOperator">Call Operator</option>
+          <option value="Agency">Agency</option>
+          <option value="KeyDecisionMaker">Key Decision Maker</option>
+          <option value="Minister">Minister</option>
+          <option value="Admin">Admin</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% include 'common/footer.html' %}

@@ -1,0 +1,18 @@
+{
+    "require": {
+        "slim/slim": "^3.0",
+        "propel/propel": "2.0.*@dev",
+        "slim/twig-view": "^2.0",
+        "twig/extensions": "*",
+        "phpunit/phpunit": "5.0.*",
+        "whatsapp/chat-api": "^3.2"
+    },
+    "autoload": {
+        "classmap": ["generated-classes/"]
+    },
+    "config": {
+        "platform": {
+            "php": "5.6.7"
+        }
+    }
+}

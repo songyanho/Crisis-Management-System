@@ -1,0 +1,25 @@
+{% include 'Common/header.html' %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Information</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if informations|length < 1 %}
+        <tr>
+            <td colspan="3">No records</td>
+        </tr>
+        {% endif %}
+        {% for information in informations %}
+        <tr>
+            <td>{{ information.id }}</td>
+            <td>{{ information.content }}</td>
+            <td><a href="{{ path_for(constant('CMS::ROLE_AGENCY') ~ '#information@delete', {'id': information.id}) }}"><i class="fa fa-times"></i></a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include 'common/footer.html' %}

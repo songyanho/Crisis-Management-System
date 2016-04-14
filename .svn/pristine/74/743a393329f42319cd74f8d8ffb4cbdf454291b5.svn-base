@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" class="no-js" ng-app="cms">
+
+<head>
+    <base href="{{ baseHref }}" />
+    <meta charset="UTF-8">
+    <title>{% if title|length > 0 %}{{ title ~ ' | ' }}{% endif %}{{ maintitle }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/reset.css">
+    <!-- CSS reset -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Resource style -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+    <link href="css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="css/bootstrap-switch1.css" rel="stylesheet">
+    <link href="plugins/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/angular-flash.min.css" rel="stylesheet">
+    <script src="js/modernizr.js"></script>
+    <!-- Modernizr -->
+    <script src="js/jquery-2.1.4.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-app.js"></script>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+    {% if loggedUser.role > 4 %}
+    <script>
+        var OneSignal = OneSignal || [];
+        OneSignal.push(["sendTag", "role", "{{ loggedUser.role }}"]);
+        OneSignal.LOGGING = true;
+        OneSignal.push(["init", {
+            appId: "ac42c166-b1bd-401f-abc0-01a282ab8863",
+            subdomainName: 'cms3003',
+            safari_web_id: 'web.onesignal.auto.01b20842-ed7c-48c4-bd42-e78491d78625',
+            notifyButton: {
+                enable: false // Set to false to hide
+            }
+        }]);
+        OneSignal.push(["registerForPushNotifications"]);
+    </script>
+    {% endif %}
+    <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
+    <script src="//cdn.jsdelivr.net/angular.pusher/latest/pusher-angular.min.js"></script>
+</head>
+
+<body ng-controller="HeaderController as hCtrl">
+    <header class="cd-main-header" ng-class="{'crisis': hCtrl.crisis}">
+        <a href="{{ path_for(constant('CMS::ROLE_GUEST') ~ '#public@redirect') }}" class="cd-logo"><h2 style="font-size: 25px;font-weight: 900;margin: 0;">C M S</h2></a>
+
+        <div class="cd-search is-hidden">
+            <form action="#0">
+                <input type="search" placeholder="Search...">
+            </form>
+        </div>
+        <!-- cd-search -->
+
+        <a href="#0" class="cd-nav-trigger">Menu<span></span></a>
+
+        <nav class="cd-nav">
+            <ul class="cd-top-nav">
+                <!--				<li><a href="#0">Support</a></li>-->
+                <li class="has-children account">
+                    <a href="#0">
+                        <img src="img/cd-avatar.png" alt="avatar"> {{ loggedUser.username }}
+                    </a>
+
+                    <ul>
+                        <li><a href="{{ path_for(constant('CMS::ROLE_GUEST') ~ '#public@login.logout') }}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <!-- .cd-main-header -->
+
+    <main class="cd-main-content">
+        <nav class="cd-side-nav">
+            {% if loggedUser.role in [constant('CMS::ROLE_KEY_DECISION_MAKER'), constant('CMS::ROLE_MINISTER')] %}
+            <ul>
+                <li class="cd-label">Decision Making</li>
+                <li class="overview{% if route.routeName == (constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '&' ~ constant('CMS::ROLE_MINISTER') ~ '#map@view') %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '&' ~ constant('CMS::ROLE_MINISTER') ~ '#map@view') }}">Map View</a>
+                </li>
+                <li class="notifications">
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@search') }}">Follow up case<span class="count">3</span></a>
+                </li>
+                <li class="overview{% if route.routeName == (constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '&' ~ constant('CMS::ROLE_MINISTER') ~ '#public@crisis.list') %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '&' ~ constant('CMS::ROLE_MINISTER') ~ '#public@crisis.list') }}">Crisis List</a>
+                </li>
+            </ul>
+            {% endif %} {% if loggedUser.role in [constant('CMS::ROLE_CALL_OPERATOR'), constant('CMS::ROLE_AGENCY')] %}
+            <ul>
+                <li class="cd-label">Case Management</li>
+                <li class="notifications{% if route.routeName == (constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list') %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@list-active') }}">View active cases<span class="count">3</span></a>
+                </li>
+                <li class="notifications{% if route.routeName == (constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@new') %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@new') }}">New case</a>
+                </li>
+                <li class="notifications">
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@search') }}">Follow up case<span class="count">3</span></a>
+                </li>
+            </ul>
+            {% endif %}
+            {% if loggedUser.role == constant('CMS::ROLE_AGENCY') %}
+            <ul>
+                <li class="cd-label">Information</li>
+                <li class="notifications{% if route.routeName == constant('CMS::ROLE_AGENCY') ~ '#information@list' %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_AGENCY') ~ '#information@list') }}">Information</a>
+                </li>
+                <li class="notifications{% if route.routeName == constant('CMS::ROLE_AGENCY') ~ '#information@create' %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_AGENCY') ~ '#information@create') }}">New Info</a>
+                </li>
+            </ul>
+            {% endif %}
+            {% if loggedUser.role == constant('CMS::ROLE_ADMIN') %}
+            <ul>
+                <li class="cd-label">User Management</li>
+                <li class="notifications{% if route.routeName == constant('CMS::ROLE_ADMIN') ~ '#user@list' %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_ADMIN') ~ '#user@list') }}">All Users</a>
+                </li>
+                <li class="notifications{% if route.routeName == constant('CMS::ROLE_ADMIN') ~ '#user@create' %} active{% endif %}">
+                    <a href="{{ path_for(constant('CMS::ROLE_ADMIN') ~ '#user@create') }}">New User</a>
+                </li>
+            </ul>
+            {% endif %}
+        </nav>
+
+        <div class="content-wrapper">

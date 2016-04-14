@@ -1,0 +1,93 @@
+{% include 'Common/header.html' %}
+<script>window.incidentId = '{{ incident.id }}';</script>
+<div class="row" ng-controller="ViewIncidentController as viCtrl">
+    <div class="col-xs-8">
+        <h3>View Incident #{{ incident.id }}</h3>
+        <table class="table table-bordered table-hover" style="margin: 20px;">
+            <tr>
+                <td>Incident Case</td>
+                <td>#<strong>{{ incident.id }}</strong></td>
+            </tr>
+            <tr>
+                <td>Categories</td>
+                <td>{{ incident.categories|categoryJoin }}</td>
+            </tr>
+            <tr>
+                <td>Title</td>
+                <td>{{ incident.title }}</td>
+            </tr>
+            <tr>
+                <td>Location</td>
+                <td>{{ incident.location }}<br />({{ incident.latitude }}, {{ incident.longitude }})</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>{% if incident.active %}Active{% else %}Archive{% endif %}</td>
+            </tr>
+        </table>
+        <div class="row">
+            <h3>Action</h3>
+            <form name="drForm" class="col-xs-12" style="margin-bottom: 30px;">
+                <div class="form-group">
+                    <label for="categoryInput">Incident Status: <strong>{% if incident.active %}Active{% else %}Inactive{% endif %}</strong></label>
+                    {% if incident.active %}
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@close-incident', {id: incident.id}) }}" class="btn btn-primary" style="margin: 5px;">Close incident</a>
+                    {% else %}
+                    <a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@open-incident', {id: incident.id}) }}" class="btn btn-default" style="margin: 5px;">Open incident</a>
+                    {% endif %}
+                </div>
+                 <div class="form-group">
+                    <label for="descriptionInput">Severity *</label>
+                    <ul class="pagination" style="margin: 0;padding-top: 30px;">
+                        <li{% if incident.severity == 1 %} class="active"{% endif %}><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@severity-incident', {id: incident.id, severity: 1}) }}">E</a></li>
+                        <li{% if incident.severity == 2 %} class="active"{% endif %}><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@severity-incident', {id: incident.id, severity: 2}) }}">D</a></li>
+                        <li{% if incident.severity == 3 %} class="active"{% endif %}><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@severity-incident', {id: incident.id, severity: 3}) }}">C</a></li>
+                        <li{% if incident.severity == 4 %} class="active"{% endif %}><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@severity-incident', {id: incident.id, severity: 4}) }}">B</a></li>
+                        <li{% if incident.severity == 5 %} class="active"{% endif %}><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '&' ~ constant('CMS::ROLE_KEY_DECISION_MAKER') ~ '#incident@severity-incident', {id: incident.id, severity: 5}) }}">A</a></li>
+                    </ul>
+                    <div class="alert alert-warning" role="alert">“A” being the most severe incident, and  “E” being the least severe incident</div>
+                </div>
+            </form>
+            <h3>Dispatch Resource</h3>
+            <form name="drForm" class="col-xs-12" style="margin-bottom: 30px;">
+                <div class="form-group">
+                    <label for="categoryInput">Resources *</label>
+                    <button class="btn" style="margin: 5px;" ng-repeat="resource in viCtrl.resources track by $index" ng-class="{'btn-default': !resource.selected, 'btn-primary': resource.selected}" ng-click="viCtrl.selectResource(resource)"><img ng-src="{{ '{{resource.Image}}' }}" width="150" height="150"/><br /><span ng-bind="resource.Name"></span></button>
+                </div>
+                <button class="btn" ng-class="{'btn-success': drForm.$valid, 'btn-default': drForm.$invalid}" ng-disabled="drForm.$invalid" ng-click="viCtrl.createNewCategoriesAndResource()">Send request</button>
+            </form>
+            <h3>Dispatch Records</h3>
+            <div class="col-xs-12">
+                <div class="list-group">
+                    <p href="#" class="list-group-item" ng-repeat="record in viCtrl.records">{{ '{{record.resource_name}}' }}<span class="badge"><time am-time-ago="record.datetime.date"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-4">
+        <div id="map" style="min-height:500px;"></div>
+    </div>
+</div>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSzSxLsG1teBE0zbxCf0GcoRZfzZoNZR4&callback=initMap"></script>
+<script>
+    window.map = null;
+    function initMap() {
+        window.map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: {{ incident.latitude }}, lng: {{ incident.longitude }}},
+            zoom: 18,
+            mapTypeId: google.maps.MapTypeId.TERRAIN
+        });
+        var marker = new google.maps.Marker({
+            position: {lat: {{ incident.latitude }}, lng: {{ incident.longitude }}},
+            map: window.map,
+            title: '{{ incident.location }}'
+        });
+    }
+    $(document).ready(function(){
+        $(window).resize(function(){
+            $('#map').css('height', ($(window).height() - 60)+'px' );
+        });
+        $(window).resize();
+    });
+</script>
+{% include 'common/footer.html' %}

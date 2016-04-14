@@ -1,0 +1,170 @@
+{% include 'Common/header.html' %}
+<div class="row" ng-controller="NewIncidentController as niCtrl">
+    <div class="col-md-12">
+        <div class="stepwizard">
+            <div class="stepwizard-row">
+                <div class="stepwizard-step">
+                    <button type="button" class="btn btn-primary btn-circle" ng-click="niCtrl.step = 0">1</button>
+                    <p>Incident</p>
+                </div>
+                <div class="stepwizard-step">
+                    <button type="button" class="btn btn-circle" ng-class="{'btn-danger':niCtrl.step>=1, 'btn-default': niCtrl.step<1}" ng-disabled="niCtrl.step < 1" ng-click="niCtrl.step = 1">2</button>
+                    <p>Reporter</p>
+                </div>
+                <div class="stepwizard-step">
+                    <button type="button" class="btn btn-circle" ng-class="{'btn-info':niCtrl.step>=2, 'btn-default': niCtrl.step<2}" ng-disabled="niCtrl.step < 2" ng-click="niCtrl.step = 2">3</button>
+                    <p>Resource</p>
+                </div>
+                <div class="stepwizard-step">
+                    <button type="button" class="btn btn-circle" ng-class="{'btn-success':niCtrl.step>=3, 'btn-default': niCtrl.step<3}" ng-disabled="niCtrl.step < 2" ng-click="niCtrl.step = 3">3</button>
+                    <p>Done</p>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-xs-12">
+        <div ng-show="niCtrl.step == 0">
+            <form name="niForm">
+                <h4>New incident information</h4>
+                <div class="col-md-6 col-xs-6">
+                    <div class="form-group">
+                        <label for="addressInput">Location *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="niCtrl.address" name="address" ng-model="niCtrl.address" id="addressInput" placeholder="Address" ng-enter="niCtrl.getLatLong()" autocomplete="off" required="required"  style="text-transform:uppercase">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="niCtrl.getLatLong()" ng-disabled="niCtrl.geocodingLoading || niCtrl.address.length < 1">Update on map <i class="fa fa-refresh fa-spin" ng-show="niCtrl.geocodingLoading"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label ng-show="niCtrl.addressResults.length > 0">Suggested address</label>
+                        <div class="list-group">
+                            <button ng-repeat="address in niCtrl.addressResults track by $index" ng-click="niCtrl.showOnMap($index)" class="list-group-item" ng-class="{ 'active': niCtrl.addressResults[$index].selected }">{{ '{{' }}address.formatted_address{{ '}}' }}<span class="badge" ng-show="niCtrl.addressResults[$index].selected"><i class="fa fa-check"></i></span></button>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="niCtrl.incidents == 1 || niCtrl.incidents.length > 0">
+                        <label for="addressInput">Recent incidents near {{ '{{niCtrl.address}}'}}</label>
+                        <div class="list-group">
+                            <button ng-click="niCtrl.selectIncident(0, 0)" class="list-group-item" ng-class="{ 'active': niCtrl.id == 0 }">New incident<span class="badge" ng-show="niCtrl.id == 0"><i class="fa fa-check"></i></span></button>
+                            <button ng-show="niCtrl.incidents != 1" ng-repeat="incident in niCtrl.incidents track by $index" ng-click="niCtrl.selectIncident(incident.Id, $index)" class="list-group-item" ng-class="{ 'active': niCtrl.id == incident.Id }"><span ng-bind="incident.Title"></span><br /><em ng-bind="incident.Location"></em><br /><em class="text-right"><time am-time-ago="incident.dateTime"></time></em><span class="badge" ng-show="niCtrl.id == incident.Id"><i class="fa fa-check"></i></span></button>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="niCtrl.hasAddress && niCtrl.id==0">
+                        <label for="titleInput">Title *</label>
+                        <input type="text" class="form-control" name="title" id="titleInput" ng-model="niCtrl.title" placeholder="Title" ng-required="true" autocomplete="off" required  style="text-transform:uppercase">
+                    </div>
+                    <div class="form-group" ng-show="niCtrl.hasAddress">
+                        <label for="descriptionInput">Description *</label>
+                        <textarea class="form-control" name="description" id="descriptionInput" ng-model="niCtrl.description" rows="8" required></textarea>
+                    </div>
+                    <div class="form-group" ng-show="niCtrl.hasAddress">
+                        <label for="descriptionInput">Severity *</label>
+                        <ul class="pagination" style="margin: 0;padding-top: 30px;">
+                            <li ng-class="{'active': niCtrl.severity == 1}"><a ng-click="niCtrl.setSeverity(1)">E</a></li>
+                            <li ng-class="{'active': niCtrl.severity == 2}"><a ng-click="niCtrl.setSeverity(2)">D</a></li>
+                            <li ng-class="{'active': niCtrl.severity == 3}"><a ng-click="niCtrl.setSeverity(3)">C</a></li>
+                            <li ng-class="{'active': niCtrl.severity == 4}"><a ng-click="niCtrl.setSeverity(4)">B</a></li>
+                            <li ng-class="{'active': niCtrl.severity == 5}"><a ng-click="niCtrl.setSeverity(5)">A</a></li>
+                        </ul>
+                        <div class="alert alert-warning" role="alert">“A” being the most severe incident, and  “E” being the least severe incident</div>
+                    </div>
+                    <button class="btn" ng-class="{'btn-success': niForm.$valid, 'btn-default': niForm.$invalid || niCtrl.addressResults.length < 1}" ng-disabled="niCtrl.addressResults.length < 1 || niCtrl.description.length < 1 || (niCtrl.id == 0 && niForm.$invalid)" ng-click="niCtrl.createNewIncident()" ng-bind="niCtrl.id==0?'Create new incident':'Next step'" ng-show="niCtrl.hasAddress">Next step</button>
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <div id="map" style="min-height:500px;"></div>
+                </div>
+            </form>
+        </div>
+        <div ng-show="niCtrl.step == 1">
+            <h4>Reporter Information</h4>
+            <form name="nrForm">
+                <h4>New Reporter information</h4>
+                <div class="form-group">
+                    <label for="telInput">Telephone *</label>
+                    <div class="input-group">
+                        <input type="tel" class="form-control" name="tel" ng-model="niCtrl.tel" id="telInput" placeholder="Telephone number" ng-enter="niCtrl.findReporterByTel()" autocomplete="off" required  style="text-transform:uppercase">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="niCtrl.findReporterByTel()">Fetch profile by telephone <i class="fa fa-refresh fa-spin" ng-show="niCtrl.telLoading"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="niCtrl.reporters == 1 || niCtrl.reporters.length > 0">
+                    <label>Select profile</label>
+                    <div class="list-group">
+                        <button ng-click="niCtrl.selectReporter(0)" class="list-group-item" ng-class="{ 'active': niCtrl.reporterId == 0 }">New profile<span class="badge" ng-show="niCtrl.reporterId == 0"><i class="fa fa-check"></i></span></button>
+                        <button ng-show="niCtrl.reporters != 1" ng-repeat="reporter in niCtrl.reporters track by $index" ng-click="niCtrl.selectReporter(reporter.Id)" class="list-group-item" ng-class="{ 'active': niCtrl.reporterId == reporter.Id }"><span ng-bind="reporter.Name"></span><br /><em ng-bind="reporter.Tel"></em><span class="badge" ng-show="niCtrl.reporterId == reporter.Id"><i class="fa fa-check"></i></span></button>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="niCtrl.hasTel && niCtrl.reporterId==0">
+                    <label for="nameInput">Name *</label>
+                    <input type="text" class="form-control" name="name" id="nameInput" ng-model="niCtrl.name" placeholder="Name" ng-required="true" autocomplete="off" required  style="text-transform:uppercase">
+                </div>
+                <button class="btn" ng-class="{'btn-success': nrForm.$valid || niCtrl.reporterId > 0, 'btn-default': !(nrForm.$valid || niCtrl.reporterId > 0)}" ng-disabled="!(nrForm.$valid || niCtrl.reporterId > 0)" ng-click="niCtrl.createNewReporter()" ng-show="niCtrl.hasTel" ng-bind="niCtrl.reporterId==0?'Create new reporter profile':'Next step'">Next step</button>
+            </form>
+        </div>
+        <div ng-show="niCtrl.step == 2" class="row">
+            <h4>Dispatch Resource</h4>
+            <form name="drForm" class="col-xs-6">
+                <div class="form-group">
+                    <label for="categoryInput">Categories *</label>
+                    <input type="text" class="form-control" name="categories" ng-model="niCtrl.categories" id="categoryInput" placeholder="Categories" autocomplete="off" required />
+                </div>
+                <div class="form-group" style="text-align: right;">
+                    <label for="categoryInput">Resources *</label>
+                    <button class="btn" style="margin: 5px;" ng-repeat="resource in niCtrl.resources track by $index" ng-class="{'btn-default': !resource.selected, 'btn-primary': resource.selected}" ng-click="niCtrl.selectResource(resource)"><img ng-src="{{ '{{resource.Image}}' }}" width="150" height="150"/><br /><span ng-bind="resource.Name"></span></button>
+                </div>
+                <button class="btn" ng-class="{'btn-success': drForm.$valid, 'btn-default': drForm.$invalid}" ng-disabled="drForm.$invalid" ng-click="niCtrl.createNewCategoriesAndResource()">Send request</button>
+            </form>
+            <div class="col-xs-6">
+                <div class="list-group">
+                    <a href="#" class="list-group-item" ng-repeat="record in niCtrl.records">{{ '{{record.resource_name}}' }}<span class="badge"><time am-time-ago="record.datetime.date"></span></a>
+                </div>
+            </div>
+        </div>
+        <div ng-show="niCtrl.step == 3"><a href="{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#incident@new') }}" class="btn btn-block btn-success">Create new incident</a></div>
+    </div>
+</div>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSzSxLsG1teBE0zbxCf0GcoRZfzZoNZR4&callback=initMap"></script>
+<script>
+    window.map = null;
+    window.markers = [];
+    window.geocoder = null;
+    function initMap() {
+        window.map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 1.352083, lng: 103.819836},
+            zoom: 11,
+            mapTypeId: google.maps.MapTypeId.TERRAIN
+        });
+        window.geocoder = new google.maps.Geocoder;
+    }
+    $(document).ready(function(){
+        window.categorynames = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('category'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: {
+                url: "{{ path_for(constant('CMS::ROLE_CALL_OPERATOR') ~ '&' ~ constant('CMS::ROLE_AGENCY') ~ '#category@listjson') }}",
+                cache: false,
+                transform: function(response){
+                    return $.map(response.Categories, function(category) {
+                        return { category: category.Name, id: category.Id }; 
+                    });
+                }
+            }
+        });
+        window.categorynames.initialize();
+        window.inputoption = {
+            typeaheadjs: {
+                name: 'categorynames',
+                displayKey: 'category',
+                valueKey: 'category',
+                source: categorynames.ttAdapter()
+            }
+        };
+    });
+</script>
+<script>
+$(window).bind('beforeunload', function(){
+    return 'Are you sure you want to leave?';
+});
+</script>
+{% include 'common/footer.html' %}
